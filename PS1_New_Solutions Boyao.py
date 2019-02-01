@@ -251,7 +251,188 @@ W_bottom_10share=W_bottom.sum()/data["Total"].sum()
 W_top=data.loc[data["I_Percentile_rank"]>0.9,["Total"]]
 W_top_10share=W_top.sum()/data["Total"].sum()
 
+#%%QUESTION 2 DATA
+data2 = pd.read_stata("gsec1.dta")
+dataurban = data2[["HHID","urban"]]
+dataurban = dataurban.replace(['Urban', 'Rural'], 
+                     [1, 0])
 
+'''in Gender, 1 if women, 0 if men '''
+data2 = pd.read_stata("gsec2.dta")
+dataage = data2[["HHID","h2q8", "h2q3"]]
+dataage.columns = [["HHID","Age1", "Gender"]]
+dataage = dataage.replace(['Female', 'Male'], 
+                     [1, 0])
+dataage.columns = ['HHID','Age1', 'Gender']
+
+age = pd.read_stata("GSEC2.dta")
+age = age[['HHID','h2q8', 'h2q4']]
+age = age.loc[age['h2q4'].isin(['Head']),['HHID','h2q8']]
+age.columns = ['HHID', 'age']
+dataage = dataage.merge(age, on='HHID', how='left')
+dataage = dataage[['HHID', 'age', 'Gender']]
+data2 = dataage.merge(dataurban, on="HHID", how="left")
+
+
+'''Less than primary is 0, primary is 1, and more or equal than secundary is 2 .
+Don't know is understood as less than primary.'''
+school = pd.read_stata("gsec3.dta")
+school = school[["HHID","h3q3"]].dropna()
+school.columns = ["HHID","school"]
+school = school.replace(['No formal education (*OLD*)', 'Less than primary (*OLD*)', 
+                           'Some schooling but not Completed P.1','DK','Completed P.1','Completed P.2'
+                           ,'Completed P.3', 'Completed P.4', 'Completed P.5', 'Completed P.6','Completed P.7'
+                           ,'Completed J.1', 'Completed J.2', 'Completed J.3', '	Completed primary (*OLD*)'
+                           ,'Completed S.1', 'Completed S.2', 'Completed S.3', 'Completed S.4'
+                           ,'Completed S.5', 'Completed S.6', 'Completed Post primary Specialized training or Certificate'
+                           ,'Completed Post secondary Specialized training or diploma', 'Completed Degree and above'
+                           , 'Some secondary', 'Some primary', 'Never attended school', 'Completed O-level (*OLD*)'
+                           ,'Completed A-level (*OLD*)', 'Completed University (*OLD*)', 'Don\'t know (*OLD*)', 'Completed primary (*OLD*)', '	Other (Specify) (*OLD*)'], 
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 2, 2, 2, 0, 1, 0])
+
+data1 = data2.merge(school, on="HHID", how="left")
+
+'''METHOD: I took for intensive labour hours worked the whole week and 
+I add iit '''
+age.columns = ['hh','age']
+
+data2 = pd.read_stata("gsec8_1.dta")
+data2 = data2.merge(data1, on="HHID", how="left") 
+data2 = data2[["HHID","h8q5","h8q7","h8q9","h8q13", "urban","age"]]
+data2.columns = ["hh", "paid", "busines", "non-paid", "farm", "urban", "age"]
+data2 = data2.replace(['No', 'Yes', 'nan'], 
+                     [0, 1, float('NaN')]).dropna()
+#data2 = data2.merge(age, on="HHID", how="left")
+dataurban = data2.loc[data2["urban"].isin([1]),["hh", "paid", "busines", "non-paid", "farm","age"]]
+datarural = data2.loc[data2["urban"].isin([0]),["hh", "paid", "busines", "non-paid", "farm", "age"]]
+
+
+dataurban = dataurban.groupby(by = "hh")[["paid", "busines", "non-paid", "farm"]].sum()
+dataurban.reset_index(inplace=True)
+dataurban = dataurban.merge(age, on='hh', how='left')
+extensivelaboururban = dataurban[['hh',"paid", "busines", "non-paid", "farm", "age"]]
+extensivelaboururban['totalextensiveurban']= extensivelaboururban["paid"]+extensivelaboururban["busines"]+extensivelaboururban["non-paid"]+extensivelaboururban["farm"]
+extensivelaboururban.columns = ['HHID',"paid", "busines", "non-paid", "farm","age", "totalextensiveurban"]
+
+extensivelaboururban = extensivelaboururban[['HHID','totalextensiveurban', 'age']]
+
+datarural = datarural.groupby(by = "hh")[["paid", "busines", "non-paid", "farm"]].sum()
+datarural.reset_index(inplace=True)
+datarural = datarural.merge(age, on='hh', how='left')
+extensivelabourrural = datarural[['hh',"paid", "busines", "non-paid", "farm", "age"]]
+extensivelabourrural['totalextensiverural'] = extensivelabourrural["paid"]+extensivelabourrural["busines"]+extensivelabourrural["non-paid"]+extensivelabourrural['farm']
+extensivelabourrural.columns = ["HHID","paid", "busines", "non-paid", "farm", "age","totalextensiverural"]
+extensivelabourrural = extensivelabourrural[['HHID','totalextensiverural', 'age']]
+#extensivelabourrural = extensivelabourrural['totalextensiverural']
+
+
+#MAKING INTENSIVE
+age.columns = ['HHID', 'age']
+data = pd.read_stata("gsec8_1.dta")
+data = data.merge(data1, on="HHID", how="left") 
+data = data[["HHID","h8q36a","h8q36b","h8q36c","h8q36d","h8q36e","h8q36f","h8q36g", "urban"]].dropna()
+dataurban = data.loc[data["urban"].isin([1]),["HHID","h8q36a","h8q36b","h8q36c","h8q36d","h8q36e","h8q36f","h8q36g"]]
+datarural = data.loc[data["urban"].isin([0]),["HHID","h8q36a","h8q36b","h8q36c","h8q36d","h8q36e","h8q36f","h8q36g"]]
+
+dataurban = dataurban.groupby(by = "HHID")[["h8q36a","h8q36b","h8q36c","h8q36d","h8q36e","h8q36f","h8q36g"]].sum()
+datarural = datarural.groupby(by = "HHID")[["h8q36a","h8q36b","h8q36c","h8q36d","h8q36e","h8q36f","h8q36g"]].sum()
+dataurban.reset_index(inplace=True)
+datarural.reset_index(inplace=True)
+datarural = datarural.merge(age, on='HHID', how='left')
+dataurban = dataurban.merge(age, on='HHID', how='left')
+
+intensivelaboururban = dataurban[['HHID']]
+intensivelabourrural = datarural[['HHID']]
+intensivelaboururban['totalinturban'] = dataurban['h8q36a']+dataurban['h8q36b']+dataurban['h8q36c']+dataurban['h8q36d']+dataurban['h8q36e']+dataurban['h8q36f']+dataurban['h8q36g']
+intensivelabourrural['totalintrural'] = datarural['h8q36a']+datarural['h8q36b']+datarural['h8q36c']+datarural['h8q36d']+datarural['h8q36e']+datarural['h8q36f']+datarural['h8q36g']
+
+
+#intensivelaboururban = dataurban.sum(axis=1)
+#intensivelabourrural = datarural.sum(axis=1)
+rural = intensivelabourrural.merge(extensivelabourrural,on="HHID", how="outer")
+
+urban = intensivelaboururban.merge(extensivelaboururban,on="HHID", how="outer")
+
+
+#%% QUESTION 2.1.1:
+
+Iurban = intensivelaboururban[["totalinturban"]]
+Irural = intensivelabourrural[["totalintrural"]]
+Erural = extensivelabourrural[["totalextensiverural"]]
+Eurban = extensivelaboururban[["totalextensiveurban"]]
+
+sum_extensivelaboururban = Eurban.describe()
+sum_extensivelabourrural = Erural.describe()
+sum_intensivelaboururban = Iurban.describe()
+sum_intensivelabourrural = Irural.describe()
+print(sum_extensivelaboururban.to_latex())
+print(sum_extensivelabourrural.to_latex())
+print(sum_intensivelaboururban.to_latex())
+print(sum_intensivelabourrural.to_latex())
+
+#%% Question 2.1.2:
+iu=np.asarray(Iurban)
+ir=np.asarray(Irural)
+eu=np.asarray(Eurban)
+Er=np.asarray(Erural)
+
+#Hist
+plt.figure
+plt.subplots_adjust(top=0.9, bottom=0, left=0.3, right=1.5, wspace=0.5)
+plt.suptitle('Extensive and Intensive Histograms')
+bins=50 #Adjust the number of bins
+bins2=75
+plt.subplot(1,2,1)
+plt.hist(ir, bins, alpha=0.5, label='Rural_I')
+plt.hist(iu, bins, alpha=0.5, label='Urban_I')
+#pyplot.hist(wu, bins, alpha=0.5, label='Wealth')
+plt.xlim([0,10000])
+plt.legend(loc='upper right')
+
+plt.subplot(1,2,2)
+plt.hist(eu, bins, alpha=0.5, label='Urban_E')
+plt.hist(Er, bins2, alpha=0.5, color='r', label='Rural_E')
+plt.xlim([0,200])
+#pyplot.hist(wu, bins, alpha=0.5, label='Wealth')
+plt.legend(loc='upper right')
+plt.show()
+
+Iurban = Iurban.replace(0, 1)
+lnIurban = np.log(Iurban)
+varIurban=  np.var(lnIurban)
+Eurban = Eurban.replace(0, 1)
+lnEurban = np.log(Eurban)
+varEurban=  np.var(lnEurban)
+Irural = Irural.replace(0, 1)
+lnIrural = np.log(Irural) 
+varIrural =  np.var(lnIrural)
+Erural = Erural.replace(0, 1)
+lnErural = np.log(Erural) 
+varErural =  np.var(lnErural)
+
+#%% Question 2.1.3: CROSS-SECTION:
+#I remove 0 consumption people:
+#urban = urban.groupby(by='HHID')[["totalinturban", "totalextensiveurban"]].sum()
+#urban = urban.dropna()
+#rural = rural.dropna()
+
+#1- Correlations Matrix (CM)
+CIW_R=rural[["totalintrural","totalextensiverural"]]
+CM_R= CIW_R.corr()
+print(CM_R.to_latex())
+
+CIW_U=urban[["totalinturban","totalextensiveurban"]]
+CM_U= CIW_U.corr()
+print(CM_U.to_latex())
+
+rural['totalintrural'] = rural['totalintrural'].fillna(0)
+
+#2.- Joint density graphs
+with sns.axes_style('white'):
+    sns.jointplot("totalintrural", "totalextensiverural", rural, kind='kde', xlim=(-600,2000),ylim=(0,200));
+
+with sns.axes_style('white'):
+    sns.jointplot("totalinturban", "totalextensiveurban", urban, kind='kde',xlim=(-600,2000),ylim=(0,150));
 
 # 2.2. GENDER ANALYSIS by education
 %reset -sf #Clear all
@@ -332,9 +513,10 @@ extfemale = female[["f extensive"]]
 sum_fem=female[["f consumption","f wealth", "f income","f intensive","f extensive"]]
 sum_fem=sum_fem.describe()
 print(sum_fem.to_latex())
+
+
 #male
 cmale = Male[["m consumption"]]
-
 wmale = Male[["m wealth"]]
 imale = Male[["m income"]]
 intmale = Male[["m intensive"]]
