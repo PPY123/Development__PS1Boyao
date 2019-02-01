@@ -662,3 +662,190 @@ W_top=Male_data.loc[Male_data["I_Percentile_rank"]>0.9,["Total"]]
 W_top_10share_M=W_top.sum()/Male_data["Total"].sum()
 
 
+#3. REGIONAL INEQUALITY
+#3.1. CWL agains income
+import pandas as pd
+import numpy as np
+import os
+import statsmodels.formula.api as sm
+os.chdir('/Users/Boyao/Desktop/UAB/Development/PS1Final')
+from data_functions_albert import remove_outliers
+os.chdir('/Users/Boyao/Desktop/UAB/Development/PS1Final')
+from statsmodels.iolib.summary2 import summary_col
+pd.options.display.float_format = '{:,.2f}'.format
+import seaborn as sns
+sns.set()
+import matplotlib.pyplot as plt
+dollars = 2586.89 
+
+data = pd.read_stata("Uganda.dta")
+
+#Region 1
+central = data.loc[data["region"]==1,["HHID","hh_consumption_year_2013","Total","hh_ttincome_2013","hh_laboursupply_year_2013"]]
+
+
+plt.figure()
+plt.subplots_adjust(top=0.9, bottom=0.1, left=0.3, right=1.5, wspace=0.5)
+plt.suptitle('CWL Central Region')
+plt.subplot(131)
+plt.scatter(central["hh_ttincome_2013"], central["hh_consumption_year_2013"])
+plt.xlabel('Income')
+plt.ylabel('Consumption')
+
+plt.subplot(132)
+plt.scatter(central["hh_ttincome_2013"],central['Total'])
+plt.xlabel('Income')
+plt.ylabel('Wealth')
+
+plt.subplot(133)
+plt.scatter(central["hh_ttincome_2013"],central["hh_laboursupply_year_2013"])
+plt.xlabel('Income')
+plt.ylabel('Hours')
+plt.show()
+
+
+
+#Region 2
+Eastern = data.loc[data["region"]==2,["HHID","hh_consumption_year_2013","Total","hh_ttincome_2013","hh_laboursupply_year_2013"]]
+
+plt.figure()
+plt.subplots_adjust(top=0.9, bottom=0.1, left=0.3, right=1.5, wspace=0.5)
+plt.suptitle('CWL Eastern Region')
+plt.subplot(131)
+plt.scatter(Eastern["hh_ttincome_2013"], Eastern["hh_consumption_year_2013"])
+plt.xlabel('Income')
+plt.ylabel('Consumption')
+
+plt.subplot(132)
+plt.scatter(Eastern["hh_ttincome_2013"],Eastern['Total'])
+plt.xlabel('Income')
+plt.ylabel('Wealth')
+
+plt.subplot(133)
+plt.scatter(Eastern["hh_ttincome_2013"],Eastern["hh_laboursupply_year_2013"])
+plt.xlabel('Income')
+plt.ylabel('Hours')
+plt.show()
+
+
+
+#Region 3
+Northern = data.loc[data["region"]==3,["HHID","hh_consumption_year_2013","Total","hh_ttincome_2013","hh_laboursupply_year_2013"]]
+
+plt.figure()
+plt.subplots_adjust(top=0.9, bottom=0.1, left=0.3, right=1.5, wspace=0.5)
+plt.suptitle('CWL Northern Region')
+plt.subplot(131)
+plt.scatter(Northern["hh_ttincome_2013"],Northern["hh_consumption_year_2013"])
+plt.xlabel('Income')
+plt.ylabel('Consumption')
+
+plt.subplot(132)
+plt.scatter(Northern["hh_ttincome_2013"],Northern['Total'])
+plt.xlabel('Income')
+plt.ylabel('Wealth')
+
+plt.subplot(133)
+plt.scatter(Northern["hh_ttincome_2013"],Northern["hh_laboursupply_year_2013"])
+plt.xlabel('Income')
+plt.ylabel('Hours')
+plt.show()
+
+#Region 4 
+Western = data.loc[data["region"]==4,["HHID","hh_consumption_year_2013","Total","hh_ttincome_2013","hh_laboursupply_year_2013"]]
+
+plt.figure()
+plt.subplots_adjust(top=0.9, bottom=0.1, left=0.3, right=1.5, wspace=0.5)
+plt.suptitle('CWL Western Region')
+plt.subplot(131)
+plt.scatter(Western["hh_ttincome_2013"],Western["hh_consumption_year_2013"])
+plt.xlabel('Income')
+plt.ylabel('Consumption')
+
+plt.subplot(132)
+plt.scatter(Western["hh_ttincome_2013"],Western['Total'])
+plt.xlabel('Income')
+plt.ylabel('Wealth')
+
+plt.subplot(133)
+plt.scatter(Western["hh_ttincome_2013"],Western["hh_laboursupply_year_2013"])
+plt.xlabel('Income')
+plt.ylabel('Hours')
+plt.show()
+
+
+
+
+
+#3.2.INEQUALITY
+i1=np.asarray(central["hh_ttincome_2013"])
+i2=np.asarray(Eastern["hh_ttincome_2013"])
+i3=np.asarray(Northern["hh_ttincome_2013"])
+i4=np.asarray(Western["hh_ttincome_2013"])
+c1=np.asarray(central["hh_consumption_year_2013"])
+c2=np.asarray(Eastern["hh_consumption_year_2013"])
+c3=np.asarray(Northern["hh_consumption_year_2013"])
+c4=np.asarray(Western["hh_consumption_year_2013"])
+w1=np.asarray(central["Total"])
+w2=np.asarray(Eastern["Total"])
+w3=np.asarray(Northern["Total"])
+w4=np.asarray(Western["Total"])
+h1=np.asarray(central["hh_laboursupply_year_2013"])
+h2=np.asarray(Eastern["hh_laboursupply_year_2013"])
+h3=np.asarray(Northern["hh_laboursupply_year_2013"])
+h4=np.asarray(Western["hh_laboursupply_year_2013"])
+
+
+
+plt.figure
+plt.subplots_adjust(top=0.9, bottom=0, left=0.3, right=1.5, wspace=0.5)
+plt.suptitle('CIWL Histograms')
+bins=25 #Adjust the number of bins
+
+plt.subplot(2,2,1)
+plt.hist(i1, bins, alpha=0.5, label='inc_c')
+plt.hist(i2, bins, alpha=0.5, label='inc_e')
+plt.hist(i3, bins, alpha=0.5, label='inc_n')
+plt.hist(i4, bins, alpha=0.5, label='inc_w')
+plt.legend(loc='upper right')
+
+plt.subplot(2,2,2)
+plt.hist(c1, bins, alpha=0.5, label='con_c')
+plt.hist(c2, bins, alpha=0.5, label='con_e')
+plt.hist(c3, bins, alpha=0.5, label='con_n')
+plt.hist(c4, bins, alpha=0.5, label='con_w')
+plt.legend(loc='upper right')
+
+plt.subplot(2,2,3)
+plt.hist(w1, bins, alpha=0.5, label='w_c')
+plt.hist(w2, bins, alpha=0.5, label='w_e')
+plt.hist(w3, bins, alpha=0.5, label='w_n')
+plt.hist(w4, bins, alpha=0.5, label='w_w')
+plt.legend(loc='upper right')
+
+plt.subplot(2,2,4)
+plt.hist(h1, bins, alpha=0.5, label='h_c')
+plt.hist(h2, bins, alpha=0.5, label='h_e')
+plt.hist(h3, bins, alpha=0.5, label='h_n')
+plt.hist(h4, bins, alpha=0.5, label='h_w')
+plt.legend(loc='upper right')
+plt.show()
+
+
+#3.3. JOINT DISTRIBUTION
+
+CIWL_c=central[["hh_consumption_year_2013","Total","hh_ttincome_2013","hh_laboursupply_year_2013"]]
+CM_c= CIWL_c.corr()
+print(CM_c.to_latex())
+
+CIW_e=Eastern[["hh_consumption_year_2013","Total","hh_ttincome_2013","hh_laboursupply_year_2013"]]
+CM_U= CIW_e.corr()
+print(CM_U.to_latex())
+
+CIW_n=Northern[["hh_consumption_year_2013","Total","hh_ttincome_2013","hh_laboursupply_year_2013"]]
+CM_U= CIW_n.corr()
+print(CM_U.to_latex())
+
+CIW_w=Western[["hh_consumption_year_2013","Total","hh_ttincome_2013","hh_laboursupply_year_2013"]]
+CM_U= CIW_w.corr()
+print(CM_U.to_latex())
