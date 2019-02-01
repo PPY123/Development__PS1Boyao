@@ -152,14 +152,13 @@ count if output_kg<output02_kg + loss	// Should not be possible
 
 //Output median farm-gate price per kg
 gen farm_price_kg_2013 = a5aq8/saleoutput_kg
-merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1BOYAO.dta"	///
-, keepusing(regurb)		//Merge variable region from GSEC1
+merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1new.dta", keepusing(regurb)		//Merge variable region from GSEC1
 sort cropID regurb
 drop if _merge==2
 drop _merge
 by cropID regurb: egen median_f_cropprice_2013 = median(farm_price_kg_2013)		// farm gate price
 //Merge with consumption price
-merge m:1 cropID regurb using "Median_foodprices_kg_2013.dta", keepusing(m_price_2013_kg)		//Merge variable region from GSEC1
+merge m:1 cropID regurb using "Median_foodprices_kg_2013new.dta", keepusing(m_price_2013_kg)		//Merge variable region from GSEC1
 drop if _merge==2
 drop _merge
 
@@ -228,14 +227,13 @@ count if output_kg<output02_kg + loss	// Should not be possible
 
 //Output median farm-gate price per kg
 gen farm_price_kg_2013 = a5bq8/saleoutput_kg
-merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1BOYAO.dta"	///
-, keepusing(regurb)		//Merge variable region from GSEC1
+merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1new.dta", keepusing(regurb)		//Merge variable region from GSEC1
 sort cropID regurb
 drop if _merge==2
 drop _merge
 by cropID regurb: egen median_f_cropprice_2013 = median(farm_price_kg_2013)		// farm gate price
 //Merge with consumption price
-merge m:1 cropID regurb using "Median_foodprices_kg_2013.dta", keepusing(m_price_2013_kg)		//Merge variable region from GSEC1
+merge m:1 cropID regurb using "Median_foodprices_kg_2013new.dta", keepusing(m_price_2013_kg)		//Merge variable region from GSEC1
 drop if _merge==2
 drop _merge
 
@@ -274,8 +272,7 @@ clear all
 use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\AGSEC6A.dta"
 destring HHID, replace
 format HHID %16.0f
-merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1Boyao.dta"	///
-, keepusing(regurb)		//Merge variable region from GSEC1
+merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1new.dta", keepusing(regurb)		//Merge variable region from GSEC1
 drop if _merge==2
 drop _merge
 gen tt_livestock_2013 = a6aq7+a6aq8+a6aq9-a6aq10--a6aq11-a6aq12+a6aq13a -a6aq14a-a6aq15
@@ -296,7 +293,7 @@ clear all
 use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\AGSEC6B.dta"
 destring HHID, replace
 format HHID %16.0f
-merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1BOYAO.dta"	///
+merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1new.dta"	///
 , keepusing(regurb)		//Merge variable region from GSEC1
 drop if _merge==2
 drop _merge
@@ -320,7 +317,7 @@ clear all
 use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\AGSEC6C.dta"
 destring HHID, replace
 format HHID %16.0f
-merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1BOYAO.dta"	///
+merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1new.dta"	///
 , keepusing(regurb)		//Merge variable region from GSEC1
 drop if _merge==2
 drop _merge
@@ -355,8 +352,8 @@ use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\AGSEC8A.dta"
 destring HHID, replace
 format HHID %16.0f
 //There are only 30 items that have been slaguthed and sold in the datasheet. We don't use median price method but just the reported value
-rename a8aq5 livestockproduct__income_2013
-collapse (sum) livestockproduct__income_2013, by(HHID)
+rename a8aq5 livestockproduct__imeat_2013
+collapse (sum) livestockproduct__imeat_2013, by(HHID)
 save "livestockproduct_income_meat_2013.dta", replace
 //milk
 clear all
@@ -364,8 +361,8 @@ use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\AGSEC8B.dta"
 destring HHID, replace
 format HHID %16.0f
 //There are only 30 items that have been slaguthed and sold in the datasheet. We don't use median price method but just the reported value
-rename a8bq9 livestockproduct_milk_2013
-collapse (sum) livestockproduct_milk_2013, by(HHID)
+rename a8bq9 livestockproduct_imilk_2013
+collapse (sum) livestockproduct_imilk_2013, by(HHID)
 save "livestockproduct_income_milk_2013.dta", replace
 //egg 3 months
 clear all
@@ -373,9 +370,9 @@ use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\AGSEC8C.dta"
 destring HHID, replace
 format HHID %16.0f
 //There are only 30 items that have been slaguthed and sold in the datasheet. We don't use median price method but just the reported value
-gen livestockproduct_egg_2013 = a8cq5*4
-collapse (sum) livestockproduct_egg_2013, by(HHID)
-save "livestockproduct_income_egg_2013.dta", replace
+gen livestockproduct_iegg_2013 = a8cq5*4
+collapse (sum) livestockproduct_iegg_2013, by(HHID)
+save "livestockproduct_income_income_egg_2013.dta", replace
 
 	
 /////////other livestock cost
@@ -438,8 +435,7 @@ drop _merge
 merge 1:1 HHID using "machine_cost_2013.dta"
 drop _merge
 
-egen agri_income_2013 =  rowtotal(tt_output_s1 tt_output_s2 livestock_revenue_2013 s_livestock_revenue_2013 p_livestock_revenue_2013 ///
-inputcost_livestock_2013)
+egen agri_income_2013 =  rowtotal(tt_output_s1 tt_output_s2 livestock_revenue_2013 s_livestock_revenue_2013 p_livestock_revenue_2013 inputcost_livestock_2013)
 
 egen agri_cost_2013 =  rowtotal(rent_paid_year_2013 org_fertilizers_s1 chem_fertilizers_s1 pesticides_s1 labourcost_s1 seeds_s1	///
 org_fertilizers_s2 chem_fertilizers_s2 pesticides_s2 labourcost_s2 seeds_s2 livestock_cost_2013 ///

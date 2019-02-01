@@ -3,8 +3,7 @@ cd "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao"
 //Median price data 2013: Foods
 clear all
 use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC15B.dta"
-merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1.dta" // all matched
-//, keepusing(regurb)	
+merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1.dta", keepusing(regurb)	
 sort itmcd untcd regurb
 by itmcd untcd regurb: egen m_price_2013 =  median(h15bq12)  // market price
 by itmcd untcd regurb: egen f_price_2013 = median(h15bq13)		// farm gate price
@@ -16,8 +15,7 @@ save "Median_foodprices_2013.dta", replace
 //Median price data 2013: Non durable
 clear all
 use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC15C.dta"
-merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1.dta"	//
-///, keepusing(regurb)
+merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1.dta", keepusing(regurb)
 drop if _merge==2
 sort itmcd h15cq3 regurb
 collapse (median) h15cq10 , by( itmcd h15cq3 regurb)
@@ -31,12 +29,10 @@ save "Median_nondurableprices_2013.dta", replace
 //////////////////////////////////////////////////
 clear all
 use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC15B.dta"
-merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1.dta"	///
-, keepusing(regurb)		//Merge variable region from GSEC1
+merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1.dta", keepusing(regurb)		//Merge variable region from GSEC1
 drop _merge
 // Merge median price of each product and size
-merge m:1 itmcd untcd regurb using "Median_foodprices_2013.dta"	///
-, keepusing(m_price_2013 f_price_2013)	//Merge variables of market and farm prices
+merge m:1 itmcd untcd regurb using "Median_foodprices_2013.dta"	, keepusing(m_price_2013 f_price_2013)	//Merge variables of market and farm prices
 egen tt_con_q = rowtotal(h15bq4 h15bq6 h15bq8 h15bq10)
 gen tt_con01 = tt_con_q*m_price_2013
 // Not all item has market price and farm gate price, for example foods buying outside home,
@@ -59,8 +55,7 @@ save "hh_food_con_week_2013.dta", replace
 //////////////////////////////////////////
 clear all
 use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC15C.dta"
-merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1.dta"	///
-, keepusing(regurb)		//Merge variable region from GSEC1
+merge m:1 HHID using "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC1.dta", keepusing(regurb)		//Merge variable region from GSEC1
 drop _merge		// There are 4 households that don't report any item in this data sheet. I will keep tham here with zero entry.
 merge m:1 itmcd h15cq3 regurb using "Median_nondurableprices_2013.dta" // //Merge median market prices of non durable goods
 egen tt_nondurable01_q = rowtotal(h15cq4 h15cq6 h15cq8)	// Gen total quantity of each item
@@ -90,7 +85,7 @@ use "C:\Users\boyao\Desktop\UAB\Development\PS1Boyao\GSEC15D.dta"
 egen tt_durable02 = rowtotal(h15dq3 h15dq4 h15dq5)
 collapse (sum) tt_durable , by(HHID)		// Sum up within household of both
 rename tt_durable hh_durable_year_2013
-label var hh_durable_year_2013 "Annual household durable consumption (2010, market price)"
+label var hh_durable_year_2013 "Annual household durable consumption (2013, market price)"
 save "hh_durable_year_2013.dta", replace
 
 ///////////////////////

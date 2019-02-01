@@ -159,4 +159,4 @@ label var hh_laboursupply_year_2013 "Household labour supply (hours), 2013"
 label var hh_labourincome_year_2013 "Household labour income, 2013"
 label var otherincome_2013 "Household other income, 2013"
 label var hh_nonagri_income_2013 "Household non-agricultural income, 2013"
-save "hh_nonagri_income_2013.dta"
+save "hh_nonagri_income_2013.dta",replace
