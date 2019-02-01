@@ -1,7 +1,7 @@
 # Development__PS1Boyao
 Problem set 1
 
-PS1Boyao.pdf is a final document where report all the results for the PS.
+PS1new_Boyao.pdf is a final document where report all the results for the PS.
 
 PS1_solutionBoyao.py is the final code document for solving the PS.
 
